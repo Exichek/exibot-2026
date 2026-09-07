@@ -6,10 +6,13 @@ from dotenv import load_dotenv
 
 @dataclass(frozen=True, slots=True)
 class Settings:
+    """Настройки приложения, загружаемые из переменных окружения."""
+
     telegram_token: str
     deepseek_api_key: str
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-chat"
+    log_level: str = "INFO"
 
 
 def load_settings() -> Settings:
@@ -36,4 +39,5 @@ def load_settings() -> Settings:
             "DEEPSEEK_MODEL",
             "deepseek-chat",
         ),
+        log_level=os.getenv("LOG_LEVEL", "INFO"),
     )
