@@ -7,6 +7,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from exibot.core.message_utils import split_message
 from exibot.repositories.users import UsersRepository
 
 logger = logging.getLogger(__name__)
@@ -44,12 +45,18 @@ def create_start_router(
 
         if users_repository.add(user.id):
             logger.info("Зарегистрирован новый пользователь: %s", user.id)
-            await message.answer(FIRST_START_MESSAGE)
+
+            for chunk in split_message(FIRST_START_MESSAGE):
+                await message.answer(chunk)
+
             return
 
         if start_messages:
-            await message.answer(random.choice(start_messages))
+            reply = random.choice(start_messages)
         else:
-            await message.answer("Я уже запущен :D")
+            reply = "Я уже запущен :D"
+
+        for chunk in split_message(reply):
+            await message.answer(chunk)
 
     return router

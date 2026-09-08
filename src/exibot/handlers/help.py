@@ -4,6 +4,8 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from exibot.core.message_utils import split_message
+
 HELP_TEXT = (
     "📖 Команды бота:\n\n"
     "/start – 🚀 Запустить бота\n"
@@ -19,6 +21,7 @@ def create_help_router() -> Router:
     @router.message(Command("help"))
     async def help_command(message: Message) -> None:
         """Отправить пользователю список доступных команд."""
-        await message.answer(HELP_TEXT)
+        for chunk in split_message(HELP_TEXT):
+            await message.answer(chunk)
 
     return router
