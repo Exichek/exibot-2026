@@ -1,5 +1,8 @@
+"""Настройки приложения и загрузка переменных окружения."""
+
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -13,6 +16,7 @@ class Settings:
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-chat"
     log_level: str = "INFO"
+    data_dir: Path = Path("data")
 
 
 def load_settings() -> Settings:
@@ -40,4 +44,5 @@ def load_settings() -> Settings:
             "deepseek-chat",
         ),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
+        data_dir=Path(os.getenv("DATA_DIR", "data")),
     )
