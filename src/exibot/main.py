@@ -12,6 +12,7 @@ from exibot.core.telegram_commands import set_commands
 from exibot.handlers.art import create_art_router
 from exibot.handlers.help import create_help_router
 from exibot.handlers.start import create_start_router
+from exibot.handlers.unknown_command import create_unknown_command_router
 from exibot.repositories.images import ImagesRepository
 from exibot.repositories.users import UsersRepository
 
@@ -45,10 +46,12 @@ async def main() -> None:
     )
     help_router = create_help_router()
     art_router = create_art_router(images_repository)
+    unknown_command_router = create_unknown_command_router()
 
     dispatcher.include_router(start_router)
     dispatcher.include_router(help_router)
     dispatcher.include_router(art_router)
+    dispatcher.include_router(unknown_command_router)
 
     logger.info("Бот запущен")
 
