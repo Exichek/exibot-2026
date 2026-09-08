@@ -8,7 +8,9 @@ from aiogram import Bot, Dispatcher
 from exibot.config.json_loader import load_json
 from exibot.config.settings import load_settings
 from exibot.core.logging_config import setup_logging
+from exibot.core.telegram_commands import set_commands
 from exibot.handlers.art import create_art_router
+from exibot.handlers.help import create_help_router
 from exibot.handlers.start import create_start_router
 from exibot.repositories.images import ImagesRepository
 from exibot.repositories.users import UsersRepository
@@ -24,6 +26,8 @@ async def main() -> None:
     bot = Bot(token=settings.telegram_token)
     dispatcher = Dispatcher()
 
+    await set_commands(bot)
+
     images_repository = ImagesRepository(settings.data_dir)
     users_repository = UsersRepository(settings.data_dir)
 
@@ -35,13 +39,15 @@ async def main() -> None:
     ):
         raise TypeError("START_MESSAGES должен содержать список строк")
 
-    art_router = create_art_router(images_repository)
     start_router = create_start_router(
         users_repository,
         start_messages,
     )
+    help_router = create_help_router()
+    art_router = create_art_router(images_repository)
 
     dispatcher.include_router(start_router)
+    dispatcher.include_router(help_router)
     dispatcher.include_router(art_router)
 
     logger.info("Бот запущен")
