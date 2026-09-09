@@ -13,7 +13,7 @@ def split_message(
     while len(text) > limit:
         cut = text.rfind("\n", 0, limit)
 
-        if cut == -1:
+        if cut <= 0:
             cut = limit
 
         parts.append(text[:cut])
