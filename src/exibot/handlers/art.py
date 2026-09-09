@@ -29,7 +29,7 @@ def create_art_router(images_repository: ImagesRepository) -> Router:
         else:
             logger.info("Арт уже есть в базе: %s", file_id)
 
-    @router.message(F.document)
+    @router.message(F.document.mime_type.startswith("image/"))
     async def save_document(message: Message) -> None:
         """Сохранить изображение, присланное как документ."""
         document = message.document
@@ -59,7 +59,7 @@ def create_art_router(images_repository: ImagesRepository) -> Router:
 
         await message.answer_photo(
             file_id,
-            caption="🎨 Лови!",
+            caption="🎨 Лови артик!",
         )
 
         logger.info("Выдан случайный арт: %s", file_id)
