@@ -1,0 +1,290 @@
+"""Сборка и обработка ответов Telegram-бота."""
+
+import logging
+import random
+import re
+from dataclasses import dataclass
+
+from exibot.core.state import BotState
+from exibot.services.deepseek import DeepSeekService
+from exibot.services.emotes import EmoteCategories, ends_with_emote, pick_emote
+from exibot.services.fetishes import (
+    FetishRole,
+    FetishRoleClassifier,
+    FetishTriggers,
+    detect_fetishes,
+)
+from exibot.services.greetings import is_greeting
+from exibot.services.insults import InsultClassifier
+from exibot.services.mood import MoodClassifier
+
+logger = logging.getLogger(__name__)
+
+MoodReplies = dict[str, list[str]]
+FetishNames = dict[str, str]
+
+
+@dataclass(frozen=True, slots=True)
+class ResponseEngineConfig:
+    """Статические данные, необходимые движку ответов."""
+
+    greetings: list[str]
+    insults: list[str]
+    question_insult_replies: list[str]
+    horny_replies: list[str]
+    moods: MoodReplies
+    fetish_triggers: FetishTriggers
+    fetish_names: FetishNames
+    emote_categories: EmoteCategories
+    system_prompt: str
+    rp_prompt: str
+
+
+class ResponseEngine:
+    """Координировать обработку сообщений и формирование ответов."""
+
+    def __init__(
+        self,
+        deepseek: DeepSeekService,
+        insult_classifier: InsultClassifier,
+        mood_classifier: MoodClassifier,
+        fetish_role_classifier: FetishRoleClassifier,
+        bot_state: BotState,
+        config: ResponseEngineConfig,
+    ) -> None:
+        """Сохранить сервисы и статические данные движка."""
+        if not config.system_prompt.strip():
+            raise ValueError("Системный промпт не может быть пустым")
+
+        if not config.rp_prompt.strip():
+            raise ValueError("RP-промпт не может быть пустым")
+
+        self._deepseek = deepseek
+        self._insult_classifier = insult_classifier
+        self._mood_classifier = mood_classifier
+        self._fetish_role_classifier = fetish_role_classifier
+        self._bot_state = bot_state
+        self._config = config
+
+    async def respond(self, user_message: str) -> str:
+        """Сформировать готовый ответ на сообщение пользователя."""
+        greeting_reply = self._handle_greeting(user_message)
+
+        if greeting_reply is not None:
+            return greeting_reply
+
+        insult_reply = await self._handle_insult(user_message)
+
+        if insult_reply is not None:
+            return insult_reply
+
+        await self._update_mood(user_message)
+
+        is_rp = self._is_rp(user_message)
+        fetishes = detect_fetishes(
+            user_message,
+            self._config.fetish_triggers,
+        )
+
+        role: FetishRole = "unknown"
+
+        if fetishes:
+            role = await self._fetish_role_classifier.classify(user_message)
+
+            logger.info(
+                "Обнаружены фетиши: %s | роль бота: %s",
+                ", ".join(fetishes),
+                role,
+            )
+
+        prompt = self._build_prompt(
+            is_rp=is_rp,
+            fetishes=fetishes,
+            role=role,
+        )
+
+        try:
+            reply = await self._deepseek.chat(
+                system_prompt=prompt,
+                user_message=user_message,
+            )
+        except Exception:
+            logger.exception("Ошибка получения ответа от DeepSeek")
+            return "Бля, у тостера что-то сломалось... ≧◡≦"
+
+        if not reply:
+            reply = "DeepSeek промолчал..."
+
+        reply = self._decorate_reply(
+            reply=reply,
+            is_rp=is_rp,
+            fetishes=fetishes,
+        )
+
+        self._bot_state.register_reply()
+
+        return reply
+
+    def _handle_greeting(self, user_message: str) -> str | None:
+        """Вернуть быстрый ответ на одиночное приветствие."""
+        if not is_greeting(user_message):
+            return None
+
+        if not self._config.greetings:
+            return None
+
+        self._bot_state.register_reply()
+        return random.choice(self._config.greetings)
+
+    async def _handle_insult(self, user_message: str) -> str | None:
+        """Вернуть специальный ответ на оскорбление."""
+        insult_type = await self._insult_classifier.classify(user_message)
+
+        if insult_type == "question" and self._config.question_insult_replies:
+            reply = random.choice(self._config.question_insult_replies)
+            emote = pick_emote(
+                self._config.emote_categories,
+                "BLUSH",
+            )
+            self._bot_state.register_reply()
+            return f"{reply} {emote}".rstrip()
+
+        if insult_type == "direct" and self._config.insults:
+            reply = random.choice(self._config.insults)
+            emote = pick_emote(
+                self._config.emote_categories,
+                "INSULT",
+            )
+            self._bot_state.register_reply()
+            return f"{reply} {emote}".rstrip()
+
+        if insult_type == "general" and self._config.insults:
+            self._bot_state.register_reply()
+            return random.choice(self._config.insults)
+
+        return None
+
+    async def _update_mood(self, user_message: str) -> None:
+        """Обновить настроение бота, если классификация успешна."""
+        mood = await self._mood_classifier.classify(user_message)
+
+        if mood is None:
+            return
+
+        if mood != self._bot_state.mood:
+            logger.info(
+                "Настроение сменилось: %s -> %s",
+                self._bot_state.mood,
+                mood,
+            )
+            self._bot_state.mood = mood
+
+    def _build_prompt(
+        self,
+        is_rp: bool,
+        fetishes: list[str],
+        role: FetishRole,
+    ) -> str:
+        """Выбрать системный промпт и добавить динамический RP-контекст."""
+        if not is_rp:
+            return self._config.system_prompt
+
+        prompt = self._config.rp_prompt
+
+        prompt += (
+            "\n\nВАЖНО: Никогда не используй слово 'механический' "
+            "для описания тела Экси. "
+            "Его тело синтетическое и почти как живое. "
+            "Используй 'синтетические мышцы', 'синтетическая шерсть', "
+            "но чаще просто 'руки', 'ноги', 'лапки', 'пальцы'. "
+            "Не пиши 'механический член' — просто 'член'. "
+            "Не пиши 'снял корпус' — описывай как одежду или движение тела. "
+            "Единственное техно-исключение: визор, внутренние датчики "
+            "и вентиляторы охлаждения.\n\n"
+            "Базовая одежда Экси: фиолетовая футболка. "
+            "Протогены не носят штанов, так что нижняя часть тела открыта. "
+            "Экси может снимать или менять одежду по ходу ролевки, "
+            "если инициирует пользователь."
+        )
+        if fetishes:
+            names = [
+                self._config.fetish_names.get(fetish, fetish) for fetish in fetishes
+            ]
+            prompt += "\n\nОбнаруженный контекст фетишей: " + ", ".join(names) + "."
+
+        if role == "active":
+            prompt += "\nРоль Экси в этом RP: активная."
+
+        elif role == "passive":
+            prompt += "\nРоль Экси в этом RP: пассивная."
+
+        return prompt
+
+    def _decorate_reply(
+        self,
+        reply: str,
+        is_rp: bool,
+        fetishes: list[str],
+    ) -> str:
+        """Добавить к ответу случайные реплики и эмоуты."""
+        mood_lines = self._config.moods.get(
+            self._bot_state.mood,
+            [],
+        )
+
+        if mood_lines and random.random() < 0.3:
+            reply += "\n\n" + random.choice(mood_lines)
+
+        if is_rp and fetishes and random.random() < 0.3:
+            fetish_names = [
+                self._config.fetish_names.get(fetish, fetish) for fetish in fetishes
+            ]
+            names_text = ", ".join(fetish_names)
+
+            tease_lines = [
+                f"Ммм, похоже тебе нравятся темы: {names_text}… ^w^",
+                f"Ооо, так вот какие у тебя интересы — {names_text} >///<",
+                f"Хех, заметил у тебя: {names_text} ;3",
+            ]
+
+            reply += "\n\n" + random.choice(tease_lines)
+
+        if (
+            is_rp
+            and self._bot_state.reply_count >= 1
+            and self._config.horny_replies
+            and random.random() < 0.2
+        ):
+            horny_reply = random.choice(self._config.horny_replies)
+
+            if random.choice([True, False]):
+                reply = horny_reply + "\n\n" + reply
+            else:
+                reply += "\n\n" + horny_reply
+
+        if (
+            not is_rp
+            and self._bot_state.reply_count >= 3
+            and self._config.horny_replies
+            and random.random() < 0.15
+        ):
+            reply += "\n\n" + random.choice(self._config.horny_replies)
+
+        if random.random() < 0.25 and not ends_with_emote(
+            reply,
+            self._config.emote_categories,
+        ):
+            emote = pick_emote(
+                self._config.emote_categories,
+                "NORMAL",
+            )
+
+            if emote:
+                reply = f"{reply} {emote}"
+
+        return reply
+
+    @staticmethod
+    def _is_rp(user_message: str) -> bool:
+        """Проверить наличие RP-действия в звёздочках."""
+        return bool(re.search(r"\*[^*]+\*", user_message))

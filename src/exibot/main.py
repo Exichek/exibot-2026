@@ -20,10 +20,49 @@ from exibot.handlers.unknown_command import create_unknown_command_router
 from exibot.repositories.images import ImagesRepository
 from exibot.repositories.users import UsersRepository
 from exibot.services.deepseek import DeepSeekService
-from exibot.services.emotes import EmoteCategories
+from exibot.services.fetishes import FetishRoleClassifier
 from exibot.services.insults import InsultClassifier
+from exibot.services.mood import MoodClassifier
+from exibot.services.response_engine import ResponseEngine, ResponseEngineConfig
 
 logger = logging.getLogger(__name__)
+
+
+def _require_string_list(value: object, name: str) -> list[str]:
+    """Проверить, что значение является списком строк."""
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        raise TypeError(f"{name} должен содержать список строк")
+
+    return cast(list[str], value)
+
+
+def _require_string_lists(
+    value: object,
+    name: str,
+) -> dict[str, list[str]]:
+    """Проверить, что значение является словарём списков строк."""
+    if not isinstance(value, dict) or not all(
+        isinstance(key, str)
+        and isinstance(items, list)
+        and all(isinstance(item, str) for item in items)
+        for key, items in value.items()
+    ):
+        raise TypeError(f"{name} должен содержать словарь списков строк")
+
+    return cast(dict[str, list[str]], value)
+
+
+def _require_string_dict(
+    value: object,
+    name: str,
+) -> dict[str, str]:
+    """Проверить, что значение является словарём строк."""
+    if not isinstance(value, dict) or not all(
+        isinstance(key, str) and isinstance(item, str) for key, item in value.items()
+    ):
+        raise TypeError(f"{name} должен содержать словарь строк")
+
+    return cast(dict[str, str], value)
 
 
 async def main() -> None:
@@ -42,66 +81,58 @@ async def main() -> None:
         bot_state = BotState()
 
         start_data = load_json("start_messages.json")
-        start_messages_raw = start_data.get("START_MESSAGES", [])
-
-        if not isinstance(start_messages_raw, list) or not all(
-            isinstance(message, str) for message in start_messages_raw
-        ):
-            raise TypeError("START_MESSAGES должен содержать список строк")
-
-        start_messages = cast(list[str], start_messages_raw)
+        start_messages = _require_string_list(
+            start_data.get("START_MESSAGES", []),
+            "START_MESSAGES",
+        )
 
         personality_data = load_json("personality.json")
 
-        greetings_raw = personality_data.get("GREETINGS", [])
-        insults_raw = personality_data.get("INSULTS", [])
-
-        if not isinstance(greetings_raw, list) or not all(
-            isinstance(greeting, str) for greeting in greetings_raw
-        ):
-            raise TypeError("GREETINGS должен содержать список строк")
-
-        if not isinstance(insults_raw, list) or not all(
-            isinstance(insult, str) for insult in insults_raw
-        ):
-            raise TypeError("INSULTS должен содержать список строк")
-
-        greetings = cast(list[str], greetings_raw)
-        insults = cast(list[str], insults_raw)
-
-        question_insult_data = load_json("question_insult_replies.json")
-        question_insult_replies_raw = question_insult_data.get(
-            "QUESTION_INSULT_REPLIES",
-            [],
+        greetings = _require_string_list(
+            personality_data.get("GREETINGS", []),
+            "GREETINGS",
+        )
+        insults = _require_string_list(
+            personality_data.get("INSULTS", []),
+            "INSULTS",
+        )
+        horny_replies = _require_string_list(
+            personality_data.get("HORNY", []),
+            "HORNY",
         )
 
-        if not isinstance(question_insult_replies_raw, list) or not all(
-            isinstance(reply, str) for reply in question_insult_replies_raw
-        ):
-            raise TypeError("QUESTION_INSULT_REPLIES должен содержать список строк")
-
-        question_insult_replies = cast(
-            list[str],
-            question_insult_replies_raw,
+        question_insult_data = load_json("question_insult_replies.json")
+        question_insult_replies = _require_string_list(
+            question_insult_data.get("QUESTION_INSULT_REPLIES", []),
+            "QUESTION_INSULT_REPLIES",
         )
 
         emotes_data = load_json("emotes.json")
-        emote_categories_raw = emotes_data.get("CATEGORIES", {})
+        emote_categories = _require_string_lists(
+            emotes_data.get("CATEGORIES", {}),
+            "CATEGORIES",
+        )
 
-        if not isinstance(emote_categories_raw, dict) or not all(
-            isinstance(category, str)
-            and isinstance(emotes, list)
-            and all(isinstance(emote, str) for emote in emotes)
-            for category, emotes in emote_categories_raw.items()
-        ):
-            raise TypeError("CATEGORIES должен содержать словарь списков строк")
+        mood_data = load_json("mood.json")
+        moods = _require_string_lists(
+            mood_data.get("MOODS", {}),
+            "MOODS",
+        )
 
-        emote_categories = cast(
-            EmoteCategories,
-            emote_categories_raw,
+        fetish_triggers = _require_string_lists(
+            load_json("fetishes_triggers.json"),
+            "fetishes_triggers.json",
+        )
+        fetish_names = _require_string_dict(
+            load_json("fetish_names.json"),
+            "fetish_names.json",
         )
 
         insult_prompt = load_prompt("insult_classification.txt")
+        mood_prompt = load_prompt("mood_classification.txt")
+        fetish_role_prompt = load_prompt("fetish_role_classification.txt")
+        system_prompt = load_prompt("system.txt")
+        rp_prompt = load_prompt("rp.txt")
 
         deepseek = DeepSeekService(
             api_key=settings.deepseek_api_key,
@@ -113,6 +144,36 @@ async def main() -> None:
             deepseek=deepseek,
             prompt=insult_prompt,
         )
+        mood_classifier = MoodClassifier(
+            deepseek=deepseek,
+            prompt=mood_prompt,
+        )
+        fetish_role_classifier = FetishRoleClassifier(
+            deepseek=deepseek,
+            prompt=fetish_role_prompt,
+        )
+
+        response_engine_config = ResponseEngineConfig(
+            greetings=greetings,
+            insults=insults,
+            question_insult_replies=question_insult_replies,
+            horny_replies=horny_replies,
+            moods=moods,
+            fetish_triggers=fetish_triggers,
+            fetish_names=fetish_names,
+            emote_categories=emote_categories,
+            system_prompt=system_prompt,
+            rp_prompt=rp_prompt,
+        )
+
+        response_engine = ResponseEngine(
+            deepseek=deepseek,
+            insult_classifier=insult_classifier,
+            mood_classifier=mood_classifier,
+            fetish_role_classifier=fetish_role_classifier,
+            bot_state=bot_state,
+            config=response_engine_config,
+        )
 
         start_router = create_start_router(
             users_repository,
@@ -121,14 +182,7 @@ async def main() -> None:
         help_router = create_help_router()
         art_router = create_art_router(images_repository)
         unknown_command_router = create_unknown_command_router()
-        text_router = create_text_router(
-            bot_state=bot_state,
-            greetings=greetings,
-            insult_classifier=insult_classifier,
-            insults=insults,
-            question_insult_replies=question_insult_replies,
-            emote_categories=emote_categories,
-        )
+        text_router = create_text_router(response_engine)
 
         dispatcher.include_router(start_router)
         dispatcher.include_router(help_router)
