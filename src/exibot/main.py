@@ -183,7 +183,11 @@ async def main() -> None:
             start_messages,
         )
         help_router = create_help_router()
-        art_router = create_art_router(images_repository)
+
+        art_router = create_art_router(
+            images_repository=images_repository,
+            art_chat_id=settings.art_chat_id,
+        )
 
         admin_router = create_admin_router(
             images_repository=images_repository,

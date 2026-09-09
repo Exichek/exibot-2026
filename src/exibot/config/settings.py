@@ -13,6 +13,7 @@ class Settings:
 
     telegram_token: str
     deepseek_api_key: str
+    art_chat_id: int
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-chat"
     log_level: str = "INFO"
@@ -41,6 +42,7 @@ def load_settings() -> Settings:
 
     telegram_token = os.getenv("TELEGRAM_TOKEN")
     deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+    art_chat_id_raw = os.getenv("ART_CHAT_ID")
 
     if not telegram_token:
         raise RuntimeError("TELEGRAM_TOKEN не найден в окружении")
@@ -48,12 +50,21 @@ def load_settings() -> Settings:
     if not deepseek_api_key:
         raise RuntimeError("DEEPSEEK_API_KEY не найден в окружении")
 
+    if not art_chat_id_raw:
+        raise RuntimeError("ART_CHAT_ID не найден в окружении")
+
+    try:
+        art_chat_id = int(art_chat_id_raw)
+    except ValueError as error:
+        raise ValueError("ART_CHAT_ID должен быть целым числом") from error
+
     return Settings(
+        telegram_token=telegram_token,
+        deepseek_api_key=deepseek_api_key,
+        art_chat_id=art_chat_id,
         admin_ids=_parse_admin_ids(
             os.getenv("ADMIN_IDS", ""),
         ),
-        telegram_token=telegram_token,
-        deepseek_api_key=deepseek_api_key,
         deepseek_base_url=os.getenv(
             "DEEPSEEK_BASE_URL",
             "https://api.deepseek.com",
