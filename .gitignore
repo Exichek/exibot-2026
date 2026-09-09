@@ -42,4 +42,4 @@ dist/
 *.egg-info/
 
 # Runtime application data
-data/
+/data/
