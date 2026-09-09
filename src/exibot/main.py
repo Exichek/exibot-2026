@@ -13,6 +13,7 @@ from exibot.core.logging_config import setup_logging
 from exibot.core.state import BotState
 from exibot.core.telegram_commands import set_commands
 from exibot.handlers.art import create_art_router
+from exibot.handlers.errors import register_error_handler
 from exibot.handlers.help import create_help_router
 from exibot.handlers.start import create_start_router
 from exibot.handlers.text import create_text_router
@@ -75,6 +76,7 @@ async def main() -> None:
 
     try:
         dispatcher = Dispatcher()
+        register_error_handler(dispatcher)
 
         images_repository = ImagesRepository(settings.data_dir)
         users_repository = UsersRepository(settings.data_dir)
