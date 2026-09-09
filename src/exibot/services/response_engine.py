@@ -81,6 +81,7 @@ class ResponseEngine:
         await self._update_mood(user_message)
 
         is_rp = self._is_rp(user_message)
+
         fetishes = detect_fetishes(
             user_message,
             self._config.fetish_triggers,
@@ -88,6 +89,7 @@ class ResponseEngine:
 
         role: FetishRole = "unknown"
 
+        # Определять роль есть смысл только при обнаруженном fetish-контексте.
         if fetishes:
             role = await self._fetish_role_classifier.classify(user_message)
 
@@ -113,6 +115,8 @@ class ResponseEngine:
             return "Бля, у тостера что-то сломалось... ≧◡≦"
 
         if not reply:
+            reply = "Пустой ответ от DeepSeek"
+        elif not reply.strip():
             reply = "DeepSeek промолчал..."
 
         reply = self._decorate_reply(
@@ -125,7 +129,10 @@ class ResponseEngine:
 
         return reply
 
-    def _handle_greeting(self, user_message: str) -> str | None:
+    def _handle_greeting(
+        self,
+        user_message: str,
+    ) -> str | None:
         """Вернуть быстрый ответ на одиночное приветствие."""
         if not is_greeting(user_message):
             return None
@@ -134,9 +141,13 @@ class ResponseEngine:
             return None
 
         self._bot_state.register_reply()
+
         return random.choice(self._config.greetings)
 
-    async def _handle_insult(self, user_message: str) -> str | None:
+    async def _handle_insult(
+        self,
+        user_message: str,
+    ) -> str | None:
         """Вернуть специальный ответ на оскорбление."""
         insult_type = await self._insult_classifier.classify(user_message)
 
@@ -146,7 +157,9 @@ class ResponseEngine:
                 self._config.emote_categories,
                 "BLUSH",
             )
+
             self._bot_state.register_reply()
+
             return f"{reply} {emote}".rstrip()
 
         if insult_type == "direct" and self._config.insults:
@@ -155,16 +168,22 @@ class ResponseEngine:
                 self._config.emote_categories,
                 "INSULT",
             )
+
             self._bot_state.register_reply()
+
             return f"{reply} {emote}".rstrip()
 
         if insult_type == "general" and self._config.insults:
             self._bot_state.register_reply()
+
             return random.choice(self._config.insults)
 
         return None
 
-    async def _update_mood(self, user_message: str) -> None:
+    async def _update_mood(
+        self,
+        user_message: str,
+    ) -> None:
         """Обновить настроение бота, если классификация успешна."""
         mood = await self._mood_classifier.classify(user_message)
 
@@ -177,6 +196,7 @@ class ResponseEngine:
                 self._bot_state.mood,
                 mood,
             )
+
             self._bot_state.mood = mood
 
     def _build_prompt(
@@ -191,32 +211,58 @@ class ResponseEngine:
 
         prompt = self._config.rp_prompt
 
+        # Сначала добавляем найденный fetish-контекст,
+        # как это происходило в старой версии бота.
+        if fetishes:
+            names = [
+                self._config.fetish_names.get(
+                    fetish,
+                    fetish,
+                )
+                for fetish in fetishes
+            ]
+
+            fetish_text = ", ".join(names)
+
+            if role == "active":
+                fetish_text += " (бот актив)"
+            elif role == "passive":
+                fetish_text += " (бот пассив)"
+
+            prompt += (
+                f"\n⚡ Учитывай, что в этом сообщении есть фетиши: "
+                f"{fetish_text}. "
+                "Отыгрывай их в ролевке откровенно и детально."
+            )
+
         prompt += (
-            "\n\nВАЖНО: Никогда не используй слово 'механический' "
+            "\nВАЖНО: Никогда не используй слово 'механический' "
             "для описания тела Экси. "
             "Его тело синтетическое и почти как живое. "
-            "Используй 'синтетические мышцы', 'синтетическая шерсть', "
+            "Используй 'синтетические мышцы', "
+            "'синтетическая шерсть', "
             "но чаще просто 'руки', 'ноги', 'лапки', 'пальцы'. "
             "Не пиши 'механический член' — просто 'член'. "
-            "Не пиши 'снял корпус' — описывай как одежду или движение тела. "
-            "Единственное техно-исключение: визор, внутренние датчики "
-            "и вентиляторы охлаждения.\n\n"
+            "Не пиши 'снял корпус' — описывай как одежду "
+            "или движение тела. "
+            "Единственное техно-исключение: визор, "
+            "внутренние датчики и вентиляторы охлаждения.\n\n"
             "Базовая одежда Экси: фиолетовая футболка. "
-            "Протогены не носят штанов, так что нижняя часть тела открыта. "
+            "Протогены не носят штанов, "
+            "так что нижняя часть тела открыта. "
             "Экси может снимать или менять одежду по ходу ролевки, "
             "если инициирует пользователь."
         )
-        if fetishes:
-            names = [
-                self._config.fetish_names.get(fetish, fetish) for fetish in fetishes
-            ]
-            prompt += "\n\nОбнаруженный контекст фетишей: " + ", ".join(names) + "."
 
         if role == "active":
-            prompt += "\nРоль Экси в этом RP: активная."
+            prompt += (
+                "\n⚡ В этой ролевке Экси должен играть роль " "активного партнёра."
+            )
 
         elif role == "passive":
-            prompt += "\nРоль Экси в этом RP: пассивная."
+            prompt += (
+                "\n⚡ В этой ролевке Экси должен играть роль " "пассивного партнёра."
+            )
 
         return prompt
 
@@ -237,14 +283,20 @@ class ResponseEngine:
 
         if is_rp and fetishes and random.random() < 0.3:
             fetish_names = [
-                self._config.fetish_names.get(fetish, fetish) for fetish in fetishes
+                self._config.fetish_names.get(
+                    fetish,
+                    fetish,
+                )
+                for fetish in fetishes
             ]
+
             names_text = ", ".join(fetish_names)
 
             tease_lines = [
-                f"Ммм, похоже тебе нравятся темы: {names_text}… ^w^",
-                f"Ооо, так вот какие у тебя интересы — {names_text} >///<",
-                f"Хех, заметил у тебя: {names_text} ;3",
+                (f"Ммм, похоже ты любишь темы: " f"{names_text}… ^w^"),
+                (f"Ооо, так вот какие у тебя фетиши — " f"{names_text} >///<"),
+                (f"Ты явно возбуждаешься от " f"{names_text}, верно? UwU"),
+                (f"Хех, я обожаю играться с " f"{names_text} ;3"),
             ]
 
             reply += "\n\n" + random.choice(tease_lines)
@@ -285,6 +337,13 @@ class ResponseEngine:
         return reply
 
     @staticmethod
-    def _is_rp(user_message: str) -> bool:
+    def _is_rp(
+        user_message: str,
+    ) -> bool:
         """Проверить наличие RP-действия в звёздочках."""
-        return bool(re.search(r"\*[^*]+\*", user_message))
+        return bool(
+            re.search(
+                r"\*[^*]+\*",
+                user_message,
+            )
+        )

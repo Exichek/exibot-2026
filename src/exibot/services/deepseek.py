@@ -37,9 +37,14 @@ class DeepSeekService:
                     "content": user_message,
                 },
             ],
+            extra_body={
+                "thinking": {
+                    "type": "disabled",
+                }
+            },
         )
 
-        return (response.choices[0].message.content or "").strip()
+        return response.choices[0].message.content or ""
 
     async def classify(
         self,
@@ -61,6 +66,11 @@ class DeepSeekService:
             ],
             max_tokens=5,
             temperature=0,
+            extra_body={
+                "thinking": {
+                    "type": "disabled",
+                }
+            },
         )
 
         return (response.choices[0].message.content or "").strip().lower()

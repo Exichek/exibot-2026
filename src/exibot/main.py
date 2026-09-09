@@ -206,6 +206,7 @@ async def main() -> None:
         dispatcher.include_router(unknown_command_router)
         dispatcher.include_router(text_router)
 
+        await bot.delete_webhook(drop_pending_updates=True)
         await set_commands(bot)
 
         logger.info("Бот запущен")

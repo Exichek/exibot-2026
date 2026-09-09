@@ -15,7 +15,7 @@ class Settings:
     deepseek_api_key: str
     art_chat_id: int
     deepseek_base_url: str = "https://api.deepseek.com"
-    deepseek_model: str = "deepseek-chat"
+    deepseek_model: str = "deepseek-v4-flash"
     log_level: str = "INFO"
     data_dir: Path = Path("data")
     admin_ids: frozenset[int] = frozenset()
@@ -43,6 +43,10 @@ def load_settings() -> Settings:
     telegram_token = os.getenv("TELEGRAM_TOKEN")
     deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
     art_chat_id_raw = os.getenv("ART_CHAT_ID")
+    deepseek_model = os.getenv(
+        "DEEPSEEK_MODEL",
+        "deepseek-v4-flash",
+    )
 
     if not telegram_token:
         raise RuntimeError("TELEGRAM_TOKEN не найден в окружении")
@@ -62,6 +66,7 @@ def load_settings() -> Settings:
         telegram_token=telegram_token,
         deepseek_api_key=deepseek_api_key,
         art_chat_id=art_chat_id,
+        deepseek_model=deepseek_model,
         admin_ids=_parse_admin_ids(
             os.getenv("ADMIN_IDS", ""),
         ),
@@ -69,10 +74,14 @@ def load_settings() -> Settings:
             "DEEPSEEK_BASE_URL",
             "https://api.deepseek.com",
         ),
-        deepseek_model=os.getenv(
-            "DEEPSEEK_MODEL",
-            "deepseek-chat",
+        log_level=os.getenv(
+            "LOG_LEVEL",
+            "INFO",
         ),
-        log_level=os.getenv("LOG_LEVEL", "INFO"),
-        data_dir=Path(os.getenv("DATA_DIR", "data")),
+        data_dir=Path(
+            os.getenv(
+                "DATA_DIR",
+                "data",
+            )
+        ),
     )

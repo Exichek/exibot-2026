@@ -30,6 +30,10 @@ dev = [
 packages = [
     { include = "exibot", from = "src" }
 ]
+include = [
+    "src/exibot/config/data/*.json",
+    "src/exibot/config/prompts/*.txt",
+]
 
 
 [tool.black]
