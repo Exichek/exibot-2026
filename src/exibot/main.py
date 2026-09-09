@@ -12,6 +12,7 @@ from exibot.config.settings import load_settings
 from exibot.core.logging_config import setup_logging
 from exibot.core.state import BotState
 from exibot.core.telegram_commands import set_commands
+from exibot.handlers.admin import create_admin_router
 from exibot.handlers.art import create_art_router
 from exibot.handlers.errors import register_error_handler
 from exibot.handlers.help import create_help_router
@@ -183,12 +184,21 @@ async def main() -> None:
         )
         help_router = create_help_router()
         art_router = create_art_router(images_repository)
+
+        admin_router = create_admin_router(
+            images_repository=images_repository,
+            users_repository=users_repository,
+            bot_state=bot_state,
+            admin_ids=settings.admin_ids,
+        )
+
         unknown_command_router = create_unknown_command_router()
         text_router = create_text_router(response_engine)
 
         dispatcher.include_router(start_router)
         dispatcher.include_router(help_router)
         dispatcher.include_router(art_router)
+        dispatcher.include_router(admin_router)
         dispatcher.include_router(unknown_command_router)
         dispatcher.include_router(text_router)
 

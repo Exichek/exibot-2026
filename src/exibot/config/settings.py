@@ -17,6 +17,22 @@ class Settings:
     deepseek_model: str = "deepseek-chat"
     log_level: str = "INFO"
     data_dir: Path = Path("data")
+    admin_ids: frozenset[int] = frozenset()
+
+
+def _parse_admin_ids(value: str) -> frozenset[int]:
+    """Преобразовать строку Telegram ID через запятую в множество чисел."""
+    if not value.strip():
+        return frozenset()
+
+    try:
+        return frozenset(
+            int(user_id.strip()) for user_id in value.split(",") if user_id.strip()
+        )
+    except ValueError as error:
+        raise ValueError(
+            "ADMIN_IDS должен содержать Telegram ID через запятую"
+        ) from error
 
 
 def load_settings() -> Settings:
@@ -33,6 +49,9 @@ def load_settings() -> Settings:
         raise RuntimeError("DEEPSEEK_API_KEY не найден в окружении")
 
     return Settings(
+        admin_ids=_parse_admin_ids(
+            os.getenv("ADMIN_IDS", ""),
+        ),
         telegram_token=telegram_token,
         deepseek_api_key=deepseek_api_key,
         deepseek_base_url=os.getenv(
