@@ -43,3 +43,5 @@ dist/
 
 # Runtime application data
 /data/
+
+coverage.xml
