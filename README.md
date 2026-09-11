@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 ExiBot 2026
+# 🤖 Protogen Delta
 
 ### Асинхронный Telegram-бот с DeepSeek, RP-логикой и системой артов
 
@@ -28,7 +28,7 @@
 
 ## 📖 О проекте
 
-**ExiBot 2026** — переработанная версия Telegram-бота ExiBot с модульной архитектурой, интеграцией DeepSeek API, системой артов, RP-логикой и административными инструментами.
+**Protogen Delta** — переработанная версия Telegram-бота Protogen Delta с модульной архитектурой, интеграцией DeepSeek API, системой артов, RP-логикой и административными инструментами.
 
 Старая монолитная структура проекта была разделена на независимые слои: Telegram-обработчики, сервисы, репозитории, конфигурацию и бизнес-логику.
 
@@ -232,10 +232,10 @@ flowchart TD
 ## 📁 Структура проекта
 
 ```text
-exibot-2026/
+Protogen-Delta/
 │
 ├── src/
-│   └── exibot/
+│   └── protogen_delta/
 │       │
 │       ├── config/
 │       │   ├── data/
@@ -340,8 +340,8 @@ poetry --version
 Через SSH:
 
 ```bash
-git clone git@github.com:Exichek/exibot-2026.git
-cd exibot-2026
+git clone git@github.com:Exichek/Protogen-Delta.git
+cd Protogen-Delta
 ```
 
 ---
@@ -454,7 +454,7 @@ ADMIN_IDS=123456789,987654321
 Запустить приложение:
 
 ```bash
-poetry run python -m exibot.main
+poetry run python -m protogen_delta.main
 ```
 
 При успешном старте появятся логи примерно такого вида:
@@ -472,7 +472,7 @@ Ctrl+C
 ```
 
 > [!NOTE]
-> ExiBot использует Telegram **long polling**.
+> Protogen Delta использует Telegram **long polling**.
 >
 > Для обычного запуска бота не требуется открывать HTTP-порт.
 
@@ -503,7 +503,7 @@ Linux
 └── Python 3.14
     ├── Poetry
     ├── Python-зависимости
-    └── ExiBot
+    └── Protogen Delta
 ```
 
 > [!NOTE]
@@ -518,7 +518,7 @@ Linux
 Из корня проекта:
 
 ```bash
-docker build -t exibot-2026 .
+docker build -t protogen-delta .
 ```
 
 Проверить созданный image:
@@ -535,10 +535,10 @@ PowerShell:
 
 ```powershell
 docker run --rm `
-  --name exibot-2026 `
+  --name protogen-delta `
   --env-file .env `
   -v "${PWD}\data:/app/data" `
-  exibot-2026
+  protogen-delta
 ```
 
 ---
@@ -547,10 +547,10 @@ docker run --rm `
 
 ```bash
 docker run --rm \
-  --name exibot-2026 \
+  --name protogen-delta \
   --env-file .env \
   -v "$(pwd)/data:/app/data" \
-  exibot-2026
+  protogen-delta
 ```
 
 ---
@@ -558,7 +558,7 @@ docker run --rm \
 ## Параметры запуска
 
 ```text
---name exibot-2026
+--name protogen-delta
 ```
 
 задаёт понятное имя контейнера.
@@ -584,7 +584,7 @@ docker run --rm \
 > [!IMPORTANT]
 > **`--rm` удаляет только контейнер.**
 >
-> Docker image `exibot-2026` и файлы из локальной директории `data/` остаются на месте.
+> Docker image `protogen-delta` и файлы из локальной директории `data/` остаются на месте.
 
 ---
 
@@ -638,10 +638,10 @@ runtime-состояние остаётся на основной системе
 
 ```powershell
 docker run -d --rm `
-  --name exibot-2026 `
+  --name protogen-delta `
   --env-file .env `
   -v "${PWD}\data:/app/data" `
-  exibot-2026
+  protogen-delta
 ```
 
 Посмотреть работающие контейнеры:
@@ -653,13 +653,13 @@ docker ps
 Посмотреть логи:
 
 ```bash
-docker logs -f exibot-2026
+docker logs -f protogen-delta
 ```
 
 Остановить:
 
 ```bash
-docker stop exibot-2026
+docker stop protogen-delta
 ```
 
 > [!WARNING]
@@ -740,7 +740,7 @@ poetry run pytest -v
 Показать общий coverage и непокрытые строки:
 
 ```bash
-poetry run pytest --cov=src/exibot --cov-report=term-missing
+poetry run pytest --cov=src/protogen_delta --cov-report=term-missing
 ```
 
 Текущий результат:
@@ -756,7 +756,7 @@ TOTAL    734    18    98%
 Создать интерактивный HTML coverage:
 
 ```bash
-poetry run pytest --cov=src/exibot --cov-report=html
+poetry run pytest --cov=src/protogen_delta --cov-report=html
 ```
 
 Результат:
@@ -783,7 +783,7 @@ HTML-отчёт позволяет открыть конкретный Python-ф
 ## XML-отчёт
 
 ```bash
-poetry run pytest --cov=src/exibot --cov-report=xml
+poetry run pytest --cov=src/protogen_delta --cov-report=xml
 ```
 
 Создаётся:
@@ -802,7 +802,7 @@ XML-report можно использовать в CI/CD и внешних сер
 
 ```powershell
 poetry run pytest `
-  --cov=src/exibot `
+  --cov=src/protogen_delta `
   --cov-report=term-missing `
   --cov-report=html `
   --cov-report=xml
@@ -812,7 +812,7 @@ poetry run pytest `
 
 ```bash
 poetry run pytest \
-  --cov=src/exibot \
+  --cov=src/protogen_delta \
   --cov-report=term-missing \
   --cov-report=html \
   --cov-report=xml
@@ -947,7 +947,7 @@ DEEPSEEK_API_KEY
 
 <details>
 
-<summary><b>История рефакторинга ExiBot</b></summary>
+<summary><b>История рефакторинга Protogen Delta</b></summary>
 
 <br>
 
@@ -994,13 +994,13 @@ poetry install
 poetry env info
 
 # Запуск бота
-poetry run python -m exibot.main
+poetry run python -m protogen_delta.main
 
 # Тесты
 poetry run pytest
 
 # Coverage
-poetry run pytest --cov=src/exibot --cov-report=term-missing
+poetry run pytest --cov=src/protogen_delta --cov-report=term-missing
 
 # Форматирование
 poetry run black src tests
@@ -1018,7 +1018,7 @@ poetry run mypy src tests
 poetry build
 
 # Сборка Docker image
-docker build -t exibot-2026 .
+docker build -t protogen-delta .
 
 # Docker images
 docker images
@@ -1027,10 +1027,10 @@ docker images
 docker ps
 
 # Логи контейнера
-docker logs -f exibot-2026
+docker logs -f protogen-delta
 
 # Остановка контейнера
-docker stop exibot-2026
+docker stop protogen-delta
 ```
 
 ---
@@ -1074,7 +1074,7 @@ $env:PYTHONIOENCODING="utf-8"
 
 <div align="center">
 
-## ExiBot
+## Protogen Delta
 
 **Python 3.14 · aiogram 3 · DeepSeek · Poetry · Docker**
 

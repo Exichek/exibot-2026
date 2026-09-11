@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-import exibot.config.settings as settings_module
-from exibot.config.settings import load_settings
+import protogen_delta.config.settings as settings_module
+from protogen_delta.config.settings import load_settings
 
 
 def _disable_dotenv(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -6,13 +6,13 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-import exibot.services.response_engine as response_engine_module
-from exibot.core.state import BotState
-from exibot.services.deepseek import DeepSeekService
-from exibot.services.fetishes import FetishRoleClassifier
-from exibot.services.insults import InsultClassifier
-from exibot.services.mood import MoodClassifier
-from exibot.services.response_engine import (
+import protogen_delta.services.response_engine as response_engine_module
+from protogen_delta.core.state import BotState
+from protogen_delta.services.deepseek import DeepSeekService
+from protogen_delta.services.fetishes import FetishRoleClassifier
+from protogen_delta.services.insults import InsultClassifier
+from protogen_delta.services.mood import MoodClassifier
+from protogen_delta.services.response_engine import (
     ResponseEngine,
     ResponseEngineConfig,
 )
@@ -209,7 +209,7 @@ def test_response_engine_uses_rp_prompt(
 
     assert prompt.startswith("RP PROMPT")
     assert "ВАЖНО" in prompt
-    assert "фиолетовая футболка" in prompt
+    assert "без одежды" in prompt
 
 
 def test_response_engine_adds_fetish_context_and_role(

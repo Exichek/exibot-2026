@@ -7,7 +7,7 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from exibot.repositories.images import ImagesRepository
+from protogen_delta.repositories.images import ImagesRepository
 
 logger = logging.getLogger(__name__)
 

@@ -15,4 +15,4 @@ RUN poetry install --only main --no-root --no-interaction --no-ansi
 
 COPY src ./src
 
-CMD ["python", "-m", "exibot.main"]
+CMD ["python", "-m", "protogen_delta.main"]

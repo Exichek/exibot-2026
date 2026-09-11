@@ -1,6 +1,6 @@
 """Тесты утилит для работы с сообщениями."""
 
-from exibot.core.message_utils import split_message
+from protogen_delta.core.message_utils import split_message
 
 
 def test_split_message_returns_short_message_unchanged() -> None:

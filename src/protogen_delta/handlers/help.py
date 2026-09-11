@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from exibot.core.message_utils import split_message
+from protogen_delta.core.message_utils import split_message
 
 HELP_TEXT = (
     "📖 Команды бота:\n\n"

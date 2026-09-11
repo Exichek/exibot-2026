@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-import exibot.services.deepseek as deepseek_module
-from exibot.services.deepseek import DeepSeekService
+import protogen_delta.services.deepseek as deepseek_module
+from protogen_delta.services.deepseek import DeepSeekService
 
 
 def _create_service(

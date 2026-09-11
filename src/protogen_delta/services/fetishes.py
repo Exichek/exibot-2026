@@ -3,7 +3,7 @@
 import logging
 from typing import Literal
 
-from exibot.services.deepseek import DeepSeekService
+from protogen_delta.services.deepseek import DeepSeekService
 
 logger = logging.getLogger(__name__)
 

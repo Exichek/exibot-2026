@@ -1,8 +1,8 @@
 """Тесты простых сервисов обработки текста."""
 
-from exibot.services.emotes import ends_with_emote, pick_emote
-from exibot.services.fetishes import detect_fetishes
-from exibot.services.greetings import is_greeting
+from protogen_delta.services.emotes import ends_with_emote, pick_emote
+from protogen_delta.services.fetishes import detect_fetishes
+from protogen_delta.services.greetings import is_greeting
 
 
 def test_is_greeting_recognizes_known_greeting() -> None:

@@ -7,9 +7,9 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from exibot.core.state import BotState
-from exibot.repositories.images import ImagesRepository
-from exibot.repositories.users import UsersRepository
+from protogen_delta.core.state import BotState
+from protogen_delta.repositories.images import ImagesRepository
+from protogen_delta.repositories.users import UsersRepository
 
 
 def create_admin_router(

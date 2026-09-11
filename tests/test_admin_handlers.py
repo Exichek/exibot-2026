@@ -9,11 +9,11 @@ import pytest
 from aiogram import Router
 from aiogram.types import Message
 
-import exibot.handlers.admin as admin_module
-from exibot.core.state import BotState
-from exibot.handlers.admin import create_admin_router
-from exibot.repositories.images import ImagesRepository
-from exibot.repositories.users import UsersRepository
+import protogen_delta.handlers.admin as admin_module
+from protogen_delta.core.state import BotState
+from protogen_delta.handlers.admin import create_admin_router
+from protogen_delta.repositories.images import ImagesRepository
+from protogen_delta.repositories.users import UsersRepository
 
 
 async def _call_handler(

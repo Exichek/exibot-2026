@@ -3,8 +3,8 @@
 from aiogram import F, Router
 from aiogram.types import Message
 
-from exibot.core.message_utils import split_message
-from exibot.services.response_engine import ResponseEngine
+from protogen_delta.core.message_utils import split_message
+from protogen_delta.services.response_engine import ResponseEngine
 
 
 def create_text_router(response_engine: ResponseEngine) -> Router:

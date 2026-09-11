@@ -9,8 +9,8 @@ from aiogram import Dispatcher
 from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import ErrorEvent
 
-import exibot.handlers.errors as errors_module
-from exibot.handlers.errors import (
+import protogen_delta.handlers.errors as errors_module
+from protogen_delta.handlers.errors import (
     handle_error,
     register_error_handler,
 )

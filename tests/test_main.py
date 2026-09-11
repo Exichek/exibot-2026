@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-import exibot.main as main_module
-from exibot.config.settings import Settings
+import protogen_delta.main as main_module
+from protogen_delta.config.settings import Settings
 
 
 def test_require_string_list_rejects_invalid_value() -> None:

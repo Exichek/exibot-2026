@@ -7,13 +7,13 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
-from exibot.core.message_utils import split_message
-from exibot.repositories.users import UsersRepository
+from protogen_delta.core.message_utils import split_message
+from protogen_delta.repositories.users import UsersRepository
 
 logger = logging.getLogger(__name__)
 
 FIRST_START_MESSAGE = (
-    "Привет! Экси v1.2.2.8 — твой личный похотливый тостер к твоим услугам! 💖^w^💖\n\n"
+    "Привет! Дельта v1.2.2.8 — твой личный похотливый тостер к твоим услугам! 💖^w^💖\n\n"
     "• ⚡ Зацени функционал моей прошивки:\n"
     "• Болтать с тобой, троллить, стебать и просто поднимать настроение. "
     "(つ≧▽≦)つ\n"

@@ -5,18 +5,18 @@ import random
 import re
 from dataclasses import dataclass
 
-from exibot.core.state import BotState
-from exibot.services.deepseek import DeepSeekService
-from exibot.services.emotes import EmoteCategories, ends_with_emote, pick_emote
-from exibot.services.fetishes import (
+from protogen_delta.core.state import BotState
+from protogen_delta.services.deepseek import DeepSeekService
+from protogen_delta.services.emotes import EmoteCategories, ends_with_emote, pick_emote
+from protogen_delta.services.fetishes import (
     FetishRole,
     FetishRoleClassifier,
     FetishTriggers,
     detect_fetishes,
 )
-from exibot.services.greetings import is_greeting
-from exibot.services.insults import InsultClassifier
-from exibot.services.mood import MoodClassifier
+from protogen_delta.services.greetings import is_greeting
+from protogen_delta.services.insults import InsultClassifier
+from protogen_delta.services.mood import MoodClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +237,7 @@ class ResponseEngine:
 
         prompt += (
             "\nВАЖНО: Никогда не используй слово 'механический' "
-            "для описания тела Экси. "
+            "для описания тела Дельты. "
             "Его тело синтетическое и почти как живое. "
             "Используй 'синтетические мышцы', "
             "'синтетическая шерсть', "
@@ -247,21 +247,21 @@ class ResponseEngine:
             "или движение тела. "
             "Единственное техно-исключение: визор, "
             "внутренние датчики и вентиляторы охлаждения.\n\n"
-            "Базовая одежда Экси: фиолетовая футболка. "
+            "Базовая одежда Дельты: без одежды. "
             "Протогены не носят штанов, "
             "так что нижняя часть тела открыта. "
-            "Экси может снимать или менять одежду по ходу ролевки, "
+            "Дельта может снимать или менять одежду по ходу ролевки, "
             "если инициирует пользователь."
         )
 
         if role == "active":
             prompt += (
-                "\n⚡ В этой ролевке Экси должен играть роль " "активного партнёра."
+                "\n⚡ В этой ролевке Дельта должен играть роль " "активного партнёра."
             )
 
         elif role == "passive":
             prompt += (
-                "\n⚡ В этой ролевке Экси должен играть роль " "пассивного партнёра."
+                "\n⚡ В этой ролевке Дельта должен играть роль " "пассивного партнёра."
             )
 
         return prompt

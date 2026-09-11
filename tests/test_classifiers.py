@@ -6,10 +6,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from exibot.services.deepseek import DeepSeekService
-from exibot.services.fetishes import FetishRoleClassifier
-from exibot.services.insults import InsultClassifier
-from exibot.services.mood import MoodClassifier
+from protogen_delta.services.deepseek import DeepSeekService
+from protogen_delta.services.fetishes import FetishRoleClassifier
+from protogen_delta.services.insults import InsultClassifier
+from protogen_delta.services.mood import MoodClassifier
 
 
 def _create_deepseek_mock() -> tuple[DeepSeekService, AsyncMock]:

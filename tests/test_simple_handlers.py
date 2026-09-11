@@ -8,14 +8,14 @@ import pytest
 from aiogram import Router
 from aiogram.types import Message
 
-import exibot.handlers.unknown_command as unknown_command_module
-from exibot.handlers.help import HELP_TEXT, create_help_router
-from exibot.handlers.text import create_text_router
-from exibot.handlers.unknown_command import (
+import protogen_delta.handlers.unknown_command as unknown_command_module
+from protogen_delta.handlers.help import HELP_TEXT, create_help_router
+from protogen_delta.handlers.text import create_text_router
+from protogen_delta.handlers.unknown_command import (
     UNKNOWN_COMMAND_REPLIES,
     create_unknown_command_router,
 )
-from exibot.services.response_engine import ResponseEngine
+from protogen_delta.services.response_engine import ResponseEngine
 
 
 def _create_message_mock(

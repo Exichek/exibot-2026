@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from exibot.repositories.images import ImagesRepository
-from exibot.repositories.json_file import JsonFileRepository
-from exibot.repositories.users import UsersRepository
+from protogen_delta.repositories.images import ImagesRepository
+from protogen_delta.repositories.json_file import JsonFileRepository
+from protogen_delta.repositories.users import UsersRepository
 
 
 def test_json_repository_creates_default_file(tmp_path: Path) -> None:
@@ -40,13 +40,13 @@ def test_json_repository_saves_and_loads_data(tmp_path: Path) -> None:
 
     repository.save(
         {
-            "name": "Экси",
+            "name": "Дельта",
             "count": 5,
         }
     )
 
     assert repository.load() == {
-        "name": "Экси",
+        "name": "Дельта",
         "count": 5,
     }
 

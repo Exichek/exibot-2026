@@ -9,13 +9,13 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from aiogram import Bot
 
-import exibot.config.json_loader as json_loader_module
-import exibot.config.prompt_loader as prompt_loader_module
-import exibot.core.logging_config as logging_config_module
-from exibot.config.json_loader import load_json
-from exibot.config.prompt_loader import load_prompt
-from exibot.core.logging_config import LOG_FORMAT, setup_logging
-from exibot.core.telegram_commands import set_commands
+import protogen_delta.config.json_loader as json_loader_module
+import protogen_delta.config.prompt_loader as prompt_loader_module
+import protogen_delta.core.logging_config as logging_config_module
+from protogen_delta.config.json_loader import load_json
+from protogen_delta.config.prompt_loader import load_prompt
+from protogen_delta.core.logging_config import LOG_FORMAT, setup_logging
+from protogen_delta.core.telegram_commands import set_commands
 
 
 def test_load_json_returns_object(
@@ -28,7 +28,7 @@ def test_load_json_returns_object(
     path.write_text(
         json.dumps(
             {
-                "NAME": "Экси",
+                "NAME": "Дельта",
                 "COUNT": 3,
             },
             ensure_ascii=False,
@@ -45,7 +45,7 @@ def test_load_json_returns_object(
     result = load_json("config.json")
 
     assert result == {
-        "NAME": "Экси",
+        "NAME": "Дельта",
         "COUNT": 3,
     }
 

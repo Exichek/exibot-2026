@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import cast
 
-from exibot.repositories.json_file import JsonFileRepository
+from protogen_delta.repositories.json_file import JsonFileRepository
 
 _IMAGES_KEY = "IMAGES"
 

@@ -9,12 +9,12 @@ import pytest
 from aiogram import Router
 from aiogram.types import Message
 
-import exibot.handlers.art as art_module
-import exibot.handlers.start as start_module
-from exibot.handlers.art import create_art_router
-from exibot.handlers.start import FIRST_START_MESSAGE, create_start_router
-from exibot.repositories.images import ImagesRepository
-from exibot.repositories.users import UsersRepository
+import protogen_delta.handlers.art as art_module
+import protogen_delta.handlers.start as start_module
+from protogen_delta.handlers.art import create_art_router
+from protogen_delta.handlers.start import FIRST_START_MESSAGE, create_start_router
+from protogen_delta.repositories.images import ImagesRepository
+from protogen_delta.repositories.users import UsersRepository
 
 
 async def _call_handler(
