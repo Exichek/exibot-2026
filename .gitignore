@@ -40,3 +40,8 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# Runtime application data
+/data/
+
+coverage.xml

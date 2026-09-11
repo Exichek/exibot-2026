@@ -1,5 +1,5 @@
 [project]
-name = "exibot-2026"
+name = "protogen-delta"
 version = "0.1.0"
 description = "Telegram bot powered by DeepSeek API"
 authors = [
@@ -28,7 +28,11 @@ dev = [
 
 [tool.poetry]
 packages = [
-    { include = "exibot", from = "src" }
+    { include = "protogen_delta", from = "src" }
+]
+include = [
+    "src/protogen_delta/config/data/*.json",
+    "src/protogen_delta/config/prompts/*.txt",
 ]
 
 

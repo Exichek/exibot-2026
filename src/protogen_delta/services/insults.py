@@ -1,0 +1,56 @@
+"""Классификация оскорблений в сообщениях пользователя."""
+
+import logging
+from typing import Literal
+
+from protogen_delta.services.deepseek import DeepSeekService
+
+logger = logging.getLogger(__name__)
+
+InsultType = Literal["general", "direct", "question", "none"]
+
+
+class InsultClassifier:
+    """Определять тип оскорбления через DeepSeek."""
+
+    def __init__(
+        self,
+        deepseek: DeepSeekService,
+        prompt: str,
+    ) -> None:
+        """Инициализировать классификатор и сохранить системный промпт."""
+        if not prompt.strip():
+            raise ValueError("Промпт классификации оскорблений не может быть пустым")
+
+        self._deepseek = deepseek
+        self._prompt = prompt
+
+    async def classify(self, user_message: str) -> InsultType:
+        """Определить тип оскорбления в сообщении пользователя."""
+        try:
+            result = await self._deepseek.classify(
+                self._prompt,
+                user_message,
+            )
+        except Exception:
+            logger.exception("Ошибка определения типа оскорбления")
+            return "none"
+
+        logger.info("Классификация оскорбления: %s", result)
+
+        # Модель иногда определяет вопрос как direct,
+        # поэтому знак вопроса используем как дополнительную подстраховку.
+        if result == "direct" and "?" in user_message:
+            logger.info("Тип оскорбления исправлен на question по знаку '?'")
+            return "question"
+
+        if result == "general":
+            return "general"
+
+        if result == "direct":
+            return "direct"
+
+        if result == "question":
+            return "question"
+
+        return "none"
