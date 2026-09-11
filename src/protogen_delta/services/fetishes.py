@@ -1,6 +1,7 @@
 """Обнаружение фетишей и определение роли бота в RP."""
 
 import logging
+import re
 from typing import Literal
 
 from protogen_delta.services.deepseek import DeepSeekService
@@ -11,16 +12,40 @@ FetishTriggers = dict[str, list[str]]
 FetishRole = Literal["active", "passive", "unknown"]
 
 
+def _matches_trigger(text: str, keyword: str) -> bool:
+    """Проверить совпадение текста с отдельным триггером.
+
+    Обычные триггеры совпадают только как целые слова или фразы.
+    Суффикс ``*`` разрешает совпадение по началу слова.
+    """
+    trigger = keyword.casefold().strip()
+
+    if not trigger:
+        return False
+
+    is_prefix = trigger.endswith("*")
+    trigger = trigger.removesuffix("*")
+
+    if not trigger:
+        return False
+
+    escaped_trigger = re.escape(trigger)
+    suffix_pattern = r"\w*" if is_prefix else ""
+    pattern = rf"(?<!\w){escaped_trigger}{suffix_pattern}(?!\w)"
+
+    return re.search(pattern, text) is not None
+
+
 def detect_fetishes(
     user_message: str,
     triggers: FetishTriggers,
 ) -> list[str]:
     """Найти фетиши по ключевым словам в сообщении пользователя."""
-    text = user_message.lower()
+    text = user_message.casefold()
     found: list[str] = []
 
     for fetish, keywords in triggers.items():
-        if any(keyword.lower() in text for keyword in keywords):
+        if any(_matches_trigger(text, keyword) for keyword in keywords):
             found.append(fetish)
 
     return found

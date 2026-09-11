@@ -15,14 +15,12 @@ async def handle_error(event: ErrorEvent) -> None:
 
     if isinstance(exception, TelegramForbiddenError):
         logger.warning(
-            "Пользователь заблокировал бота. Update: %s",
-            event.update,
+            "Пользователь заблокировал бота.",
         )
         return
 
     logger.error(
-        "Необработанная ошибка при обработке update: %s",
-        event.update,
+        "Необработанная ошибка при обработке Telegram update.",
         exc_info=(
             type(exception),
             exception,

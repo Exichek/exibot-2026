@@ -56,8 +56,7 @@ def test_handle_error_logs_forbidden_as_warning(
     asyncio.run(handle_error(event))
 
     warning_mock.assert_called_once_with(
-        "Пользователь заблокировал бота. Update: %s",
-        "test-update",
+        "Пользователь заблокировал бота.",
     )
     error_mock.assert_not_called()
 
@@ -87,8 +86,7 @@ def test_handle_error_logs_unexpected_exception(
     assert call is not None
 
     assert call.args == (
-        "Необработанная ошибка при обработке update: %s",
-        "test-update",
+        "Необработанная ошибка при обработке Telegram update.",
     )
 
     assert call.kwargs["exc_info"][0] is RuntimeError

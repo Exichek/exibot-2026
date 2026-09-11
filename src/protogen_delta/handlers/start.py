@@ -9,11 +9,12 @@ from aiogram.types import Message
 
 from protogen_delta.core.message_utils import split_message
 from protogen_delta.repositories.users import UsersRepository
+from protogen_delta import __version__
 
 logger = logging.getLogger(__name__)
 
 FIRST_START_MESSAGE = (
-    "Привет! Дельта v1.2.2.8 — твой личный похотливый тостер к твоим услугам! 💖^w^💖\n\n"
+    f"Привет! Дельта v{__version__} — твой личный похотливый тостер к твоим услугам! 💖^w^💖\n\n"
     "• ⚡ Зацени функционал моей прошивки:\n"
     "• Болтать с тобой, троллить, стебать и просто поднимать настроение. "
     "(つ≧▽≦)つ\n"

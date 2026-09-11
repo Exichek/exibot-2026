@@ -46,16 +46,28 @@ class JsonFileRepository:
         return data
 
     def save(self, data: dict[str, Any]) -> None:
-        """Сохранить данные в JSON-файл."""
+        """Атомарно сохранить данные в JSON-файл."""
         self._path.parent.mkdir(
             parents=True,
             exist_ok=True,
         )
 
-        with self._path.open("w", encoding="utf-8") as file:
-            json.dump(
-                data,
-                file,
-                ensure_ascii=False,
-                indent=2,
-            )
+        temp_path = self._path.with_suffix(
+            f"{self._path.suffix}.tmp",
+        )
+
+        try:
+            with temp_path.open("w", encoding="utf-8") as file:
+                json.dump(
+                    data,
+                    file,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+
+                file.flush()
+
+            temp_path.replace(self._path)
+        finally:
+            if temp_path.exists():
+                temp_path.unlink()

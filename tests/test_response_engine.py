@@ -311,6 +311,41 @@ def test_response_engine_returns_fallback_on_chat_error(
     assert state.reply_count == 0
 
 
+def test_response_engine_does_not_classify_fetish_role_outside_rp(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Обычный текст с fetish-триггером не должен вызывать классификатор роли."""
+    monkeypatch.setattr(
+        response_engine_module.random,
+        "random",
+        lambda: 1.0,
+    )
+
+    (
+        engine,
+        _,
+        deepseek_mock,
+        _,
+        _,
+        role_mock,
+    ) = _create_engine()
+
+    deepseek_mock.chat.return_value = "Обычный ответ"
+
+    result = asyncio.run(
+        engine.respond("Ты меня связал?"),
+    )
+
+    assert result == "Обычный ответ"
+
+    role_mock.classify.assert_not_awaited()
+
+    deepseek_mock.chat.assert_awaited_once_with(
+        system_prompt="SYSTEM PROMPT",
+        user_message="Ты меня связал?",
+    )
+
+
 def test_response_engine_handles_empty_deepseek_reply(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

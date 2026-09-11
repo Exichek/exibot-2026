@@ -90,7 +90,7 @@ class ResponseEngine:
         role: FetishRole = "unknown"
 
         # Определять роль есть смысл только при обнаруженном fetish-контексте.
-        if fetishes:
+        if is_rp and fetishes:
             role = await self._fetish_role_classifier.classify(user_message)
 
             logger.info(

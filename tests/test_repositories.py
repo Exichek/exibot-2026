@@ -182,3 +182,28 @@ def test_images_repository_rejects_invalid_data(
         match="IMAGES",
     ):
         repository.get_all()
+
+
+def test_json_repository_does_not_leave_temporary_file(
+    tmp_path: Path,
+) -> None:
+    """После успешного сохранения временный JSON-файл не должен оставаться."""
+    path = tmp_path / "data.json"
+    temp_path = tmp_path / "data.json.tmp"
+
+    repository = JsonFileRepository(
+        path=path,
+        default_data={},
+    )
+
+    repository.save(
+        {
+            "name": "Дельта",
+        }
+    )
+
+    assert path.exists()
+    assert not temp_path.exists()
+    assert repository.load() == {
+        "name": "Дельта",
+    }
