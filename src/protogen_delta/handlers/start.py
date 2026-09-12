@@ -7,9 +7,9 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from protogen_delta import __version__
 from protogen_delta.core.message_utils import split_message
 from protogen_delta.repositories.users import UsersRepository
-from protogen_delta import __version__
 
 logger = logging.getLogger(__name__)
 
