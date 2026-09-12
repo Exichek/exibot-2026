@@ -5,12 +5,16 @@
 ### Асинхронный Telegram-бот с DeepSeek, RP-логикой и системой артов
 
 <p>
+  <a href="https://github.com/Exichek/Protogen-Delta/actions/workflows/tests.yml">
+    <img src="https://github.com/Exichek/Protogen-Delta/actions/workflows/tests.yml/badge.svg?branch=develop" alt="CI">
+  </a>
   <img src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14">
   <img src="https://img.shields.io/badge/aiogram-3.x-2CA5E0?logo=telegram&logoColor=white" alt="aiogram 3">
-  <img src="https://img.shields.io/badge/Poetry-2.4.1-60A5FA?logo=poetry&logoColor=white" alt="Poetry">
+  <img src="https://img.shields.io/badge/Poetry-2.4.1-60A5FA?logo=poetry" alt="Poetry">
   <img src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/tests-127%20passed-2EA44F" alt="127 tests passed">
-  <img src="https://img.shields.io/badge/coverage-98%25-brightgreen" alt="98% coverage">
+  <img src="https://img.shields.io/badge/tests-133%20passed-2EA44F" alt="133 tests passed">
+  <img src="https://img.shields.io/badge/coverage-97%25-brightgreen" alt="97% coverage">
+  <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT License">
 </p>
 
 **Python · aiogram · DeepSeek · Poetry · Docker · pytest**
@@ -42,13 +46,14 @@
 | Метрика | Значение |
 |---|---:|
 | Python | **3.14** |
-| Tests | **127 passed** |
-| Coverage | **98%** |
+| Tests | **133 passed** |
+| Coverage | **97%** |
+| CI | **GitHub Actions** |
 | Telegram framework | **aiogram 3** |
 | AI | **DeepSeek API** |
 | Package manager | **Poetry 2.4.1** |
 | Containerization | **Docker** |
-
+| License | **MIT** |
 ---
 
 ## ⚙️ Возможности
@@ -679,11 +684,10 @@ docker stop protogen-delta
 
 | Метрика | Результат |
 |---|---:|
-| Tests | **127 passed** |
-| Statements | **734** |
-| Missed | **18** |
-| Coverage | **98%** |
-
+| Tests | **133 passed** |
+| Statements | **767** |
+| Missed | **21** |
+| Coverage | **97%** |
 Тестируются:
 
 - настройки приложения;
@@ -746,7 +750,7 @@ poetry run pytest --cov=src/protogen_delta --cov-report=term-missing
 Текущий результат:
 
 ```text
-TOTAL    734    18    98%
+TOTAL    767    21    97%
 ```
 
 ---
@@ -973,7 +977,7 @@ DEEPSEEK_API_KEY
 - добавлены административные команды;
 - добавлены unit-тесты;
 - добавлены composition-тесты;
-- достигнуто 98% test coverage;
+- достигнуто 97% test coverage;
 - настроены Black, isort, Flake8 и mypy;
 - добавлен Dockerfile;
 - настроен `.dockerignore`;
@@ -1078,6 +1082,10 @@ $env:PYTHONIOENCODING="utf-8"
 
 **Python 3.14 · aiogram 3 · DeepSeek · Poetry · Docker**
 
-`127 tests · 98% coverage`
+`133 tests · 97% coverage`
+
+## 📄 Лицензия
+
+Проект распространяется под лицензией **MIT**.
 
 </div>
