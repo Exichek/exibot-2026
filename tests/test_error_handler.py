@@ -85,9 +85,7 @@ def test_handle_error_logs_unexpected_exception(
 
     assert call is not None
 
-    assert call.args == (
-        "Необработанная ошибка при обработке Telegram update.",
-    )
+    assert call.args == ("Необработанная ошибка при обработке Telegram update.",)
 
     assert call.kwargs["exc_info"][0] is RuntimeError
     assert call.kwargs["exc_info"][1] is exception
