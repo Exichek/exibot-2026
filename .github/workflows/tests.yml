@@ -1,0 +1,60 @@
+name: Проверка проекта
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+  pull_request:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Получение исходного кода
+        uses: actions/checkout@v7
+
+      - name: Установка Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Установка Poetry
+        run: pip install poetry==2.4.1
+
+      - name: Проверка конфигурации Poetry
+        run: poetry check
+
+      - name: Установка зависимостей
+        run: poetry install --no-interaction --no-ansi
+
+      - name: Проверка Black
+        run: poetry run black --check src tests
+
+      - name: Проверка isort
+        run: poetry run isort --check-only src tests
+
+      - name: Проверка Flake8
+        run: poetry run flake8 src tests
+
+      - name: Проверка mypy
+        run: poetry run mypy src tests
+
+      - name: Запуск тестов
+        run: poetry run pytest --cov=src/protogen_delta --cov-report=term-missing --cov-fail-under=95
+
+      - name: Сборка пакета
+        run: poetry build
