@@ -11,11 +11,21 @@ class DeepSeekService:
         api_key: str,
         base_url: str,
         model: str,
+        timeout: float = 15.0,
+        max_retries: int = 1,
     ) -> None:
         """Инициализировать клиент DeepSeek."""
+        if timeout <= 0:
+            raise ValueError("timeout должен быть больше нуля")
+
+        if max_retries < 0:
+            raise ValueError("max_retries не может быть отрицательным")
+
         self._client = AsyncOpenAI(
             api_key=api_key,
             base_url=base_url,
+            timeout=timeout,
+            max_retries=max_retries,
         )
         self._model = model
 

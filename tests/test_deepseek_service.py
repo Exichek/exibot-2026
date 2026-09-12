@@ -81,6 +81,8 @@ def test_deepseek_service_creates_client(
     constructor_mock.assert_called_once_with(
         api_key="test-api-key",
         base_url="https://api.test.local",
+        timeout=15.0,
+        max_retries=1,
     )
 
 
@@ -234,3 +236,31 @@ def test_deepseek_service_closes_client(
     asyncio.run(service.close())
 
     close_mock.assert_awaited_once_with()
+
+
+def test_deepseek_service_rejects_invalid_timeout() -> None:
+    """Timeout должен быть положительным числом."""
+    with pytest.raises(
+        ValueError,
+        match="timeout",
+    ):
+        DeepSeekService(
+            api_key="test-api-key",
+            base_url="https://api.test.local",
+            model="test-model",
+            timeout=0,
+        )
+
+
+def test_deepseek_service_rejects_negative_retries() -> None:
+    """Количество повторных попыток не может быть отрицательным."""
+    with pytest.raises(
+        ValueError,
+        match="max_retries",
+    ):
+        DeepSeekService(
+            api_key="test-api-key",
+            base_url="https://api.test.local",
+            model="test-model",
+            max_retries=-1,
+        )
