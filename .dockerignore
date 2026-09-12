@@ -14,3 +14,14 @@ data
 
 tests
 dist
+
+.github
+.idea
+.vscode
+
+*.log
+logs
+
+build
+*.egg-info
+coverage.xml
